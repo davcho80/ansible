@@ -1,9 +1,25 @@
 ---
-- hosts: all
-
-  become: true
+- name: Mettre à jour et redémarrer le serveur si nécessaire
+  hosts: all  # Remplacez par le groupe ou l'hôte cible
+  become: yes  # Utilise sudo
   tasks:
-    - name: update apt packages
-      apt:
-        upgrade: yes
+    - name: Mettre à jour le cache des paquets
+      ansible.builtin.apt:
         update_cache: yes
+
+    - name: Mettre à jour les paquets
+      ansible.builtin.apt:
+        upgrade: dist  # ou use 'upgrade: yes' pour mettre à jour tous les paquets
+
+    - name: Vérifier si un redémarrage est nécessaire
+      ansible.builtin.command:
+        cmd: needs-restarting
+      register: reboot_check
+      ignore_errors: yes  # Ignore les erreurs si le package 'needs-restarting' n'est pas installé
+
+    - name: Redémarrer le serveur si nécessaire
+      ansible.builtin.reboot:
+        msg: "Le serveur est redémarré après la mise à jour."
+        connect_timeout: 5
+        reboot_timeout: 600
+      when: reboot_check.rc == 0  # Ne redémarre que si la commande 'needs-restarting' a réussi
