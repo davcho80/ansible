@@ -1,7 +1,7 @@
 ---
 - name: Mettre à jour et redémarrer le serveur si nécessaire
   hosts: all  # Remplacez par le groupe ou l'hôte cible
-  become: yes  # Utilise sudo
+  become: true  # Utilise sudo
   tasks:
     - name: Mettre à jour le cache des paquets
       ansible.builtin.apt:
