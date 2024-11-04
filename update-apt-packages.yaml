@@ -1,10 +1,9 @@
 ---
-- name: Redémarrer le serveur Ubuntu
-  become: yes  # Utilisation de sudo
+- hosts: all
+
+  become: true
   tasks:
-    - name: Redémarrer le serveur
-      ansible.builtin.command:
-        cmd: reboot
-      async: 1  # Exécution asynchrone pour éviter l'attente du redémarrage
-      poll: 0
-      ignore_errors: true  # Ignore les erreurs de connexion après le redémarrage
+    - name: update apt packages
+      apt:
+        upgrade: yes
+        update_cache: yes
