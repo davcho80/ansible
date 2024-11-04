@@ -1,5 +1,6 @@
 ---
 - name: Redémarrer le serveur Ubuntu
+  hosts: all
   become: true  # Utilisation de sudo
   tasks:
     - name: Redémarrer le serveur
