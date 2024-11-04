@@ -1,11 +1,18 @@
 ---
 - name: Redémarrer le serveur Ubuntu
-  hosts: all
-  become: true  # Utilisation de sudo
+  hosts: all  # Remplacez par le groupe ou l'hôte cible
+  become: true  # Utilise sudo pour les privilèges d'administration
   tasks:
     - name: Redémarrer le serveur
       ansible.builtin.command:
         cmd: reboot
-      async: 1  # Exécution asynchrone pour éviter l'attente du redémarrage
-      poll: 0
+      async: 1  # Exécute la commande de redémarrage de manière asynchrone
+      poll: 0  # Ne pas attendre la fin de la tâche
       ignore_errors: true  # Ignore les erreurs de connexion après le redémarrage
+
+    - name: Attendre que le serveur redémarre
+      ansible.builtin.wait_for:
+        timeout: 300  # Temps d'attente maximal en secondes
+        state: started
+        host: "{{ inventory_hostname }}"  # Attendre que le serveur soit de nouveau accessible
+      when: ansible_distribution == 'Ubuntu'  # Optionnel : attendre seulement pour Ubuntu
