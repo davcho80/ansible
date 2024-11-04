@@ -1,6 +1,6 @@
 ---
 - name: Redémarrer le serveur Ubuntu
-  become: yes  # Utilisation de sudo
+  become: true  # Utilisation de sudo
   tasks:
     - name: Redémarrer le serveur
       ansible.builtin.command:
