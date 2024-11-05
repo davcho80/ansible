@@ -10,11 +10,8 @@
 
     - name: Mettre à jour les paquets
       ansible.builtin.apt:
-        upgrade: dist  # ou use 'upgrade: yes' pour mettre à jour tous les paquets
-
-   - name: Vérifier et redémarrer si nécessaire
-  hosts: all
-  tasks:
+        upgrade: dist  # ou utilisez 'upgrade: yes' pour mettre à jour tous les paquets
+    
     - name: Vérifier si un redémarrage est nécessaire sur Ubuntu
       stat:
         path: /var/run/reboot-required
@@ -29,3 +26,4 @@
       wait_for:
         timeout: 300
       when: reboot_result is changed
+
