@@ -1,6 +1,7 @@
 ---
 - name: Redémarrer le serveur Ubuntu
   hosts: all  # Remplacez par le groupe ou l'hôte cible
+  remote_user: ansible
   become: true  # Utilise sudo pour les privilèges d'administration
   tasks:
     - name: Redémarrer le serveur
