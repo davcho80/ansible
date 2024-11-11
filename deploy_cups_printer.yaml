@@ -1,0 +1,51 @@
+name: Deploy CUPS with Brother Printer on Portainer
+
+on:
+  push:
+    branches:
+      - main  # Déclenchement sur la branche `main`
+
+jobs:
+  deploy-cups:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Deploy CUPS container in Portainer
+        env:
+          PORTAINER_URL: "http://localhost:9000"  # URL de votre Portainer
+          PORTAINER_API_TOKEN: ${{ secrets.PORTAINER_API_TOKEN }}
+          CUPS_CONTAINER_NAME: "cups_server"
+          CUPS_IMAGE: "olbat/cupsd"
+        run: |
+          # Créer le conteneur CUPS dans Portainer
+          CONTAINER_ID=$(curl -s -X POST "${PORTAINER_URL}/api/endpoints/1/docker/containers/create?name=${CUPS_CONTAINER_NAME}" \
+            -H "Authorization: Bearer ${PORTAINER_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d '{
+                  "Image": "'"${CUPS_IMAGE}"'",
+                  "HostConfig": {
+                    "PortBindings": {
+                      "631/tcp": [{"HostPort": "631"}]
+                    }
+                  }
+                }' | jq -r '.Id')
+
+          # Démarrer le conteneur CUPS
+          curl -s -X POST "${PORTAINER_URL}/api/endpoints/1/docker/containers/${CONTAINER_ID}/start" \
+            -H "Authorization: Bearer ${PORTAINER_API_TOKEN}"
+
+      - name: Download Brother printer installer script
+        run: |
+          curl -L -o /tmp/linux-brprinter-installer.gz https://github.com/davcho80/ansible/blob/010a7dbec996eec107804ba82dbf421bf6556040/linux-brprinter-installer-2.2.4-1.gz
+          gunzip -f /tmp/linux-brprinter-installer.gz
+          chmod +x /tmp/linux-brprinter-installer
+
+      - name: Install Brother printer driver silently
+        env:
+          MODEL: "HL-2270DW"  # Remplacez par le modèle exact de l'imprimante Brother
+          DEVICE_URI: "lpd://<IP_de_l_imprimante>/binary_p1"  # Remplacez par l'IP de l'imprimante réseau
+        run: |
+          echo -e "${MODEL}\nY\nY\n${DEVICE_URI}" | bash /tmp/linux-brprinter-installer
