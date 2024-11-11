@@ -1,1 +1,21 @@
+---
+- name: Deploy CUPS container
+  hosts: localhost
+  become: true
+  tasks:
+    - name: Pull CUPS Docker image
+      docker_image:
+        name: olbat/cupsd
+        source: pull
+
+    - name: Run CUPS container
+      docker_container:
+        name: cupsd
+        image: olbat/cupsd
+        state: started
+        restart_policy: unless-stopped
+        ports:
+          - "631:631"  # Expose CUPS port
+        volumes:
+          - /tmp/cups:/etc/cups  # Mount directory for CUPS configuration (optional)
 
