@@ -5,10 +5,10 @@ apt-get update && apt-get install -y git wget lpr cups
 
 # Télécharger le package d'installation depuis GitHub
 cd /scripts
-git clone https://github.com/yourusername/yourrepository.git
+git clone https://github.com/davcho80/ansible.git
 
 # Décompresser le package et installer le pilote
-cd yourrepository
+cd ansible
 chmod +x linux-brprinter-installer-2.2.4-1
 ./linux-brprinter-installer-2.2.4-1 HL-3040CN 192.168.7.100 --silent
 
