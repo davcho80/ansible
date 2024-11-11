@@ -15,13 +15,14 @@ jobs:
 
       - name: Deploy CUPS container in Portainer
         env:
-          PORTAINER_URL: "${{ secrets.PORTAINER_URL }}:9443"  # URL de votre Portainer
+          IP_IMPRIMANTE: ${{ secrets.IP_PRINTER }}
+          PORTAINER_URL: ${{ secrets.PORTAINER_URL }}  # URL de votre Portainer
           PORTAINER_API_TOKEN: ${{ secrets.PORTAINER_API_TOKEN }}
           CUPS_CONTAINER_NAME: "cups_server"
           CUPS_IMAGE: "olbat/cupsd"
         run: |
           # Créer le conteneur CUPS dans Portainer
-          CONTAINER_ID=$(curl -s -X POST "${PORTAINER_URL}/api/endpoints/1/docker/containers/create?name=${CUPS_CONTAINER_NAME}" \
+          CONTAINER_ID=$(curl -s -X POST "${PORTAINER_URL}:9443/api/endpoints/1/docker/containers/create?name=${CUPS_CONTAINER_NAME}" \
             -H "Authorization: Bearer ${PORTAINER_API_TOKEN}" \
             -H "Content-Type: application/json" \
             -d '{
@@ -45,7 +46,7 @@ jobs:
 
       - name: Install Brother printer driver silently
         env:
-          MODEL: "HL-2270DW"  # Remplacez par le modèle exact de l'imprimante Brother
-          DEVICE_URI: "lpd://<IP_de_l_imprimante>/binary_p1"  # Remplacez par l'IP de l'imprimante réseau
+          MODEL: "HL-3040CN"  # Remplacez par le modèle exact de l'imprimante Brother
+          DEVICE_URI: "lpd://${secrets.IP_PRINTER}/binary_p1"  # Remplacez par l'IP de l'imprimante réseau
         run: |
           echo -e "${MODEL}\nY\nY\n${DEVICE_URI}" | bash /tmp/linux-brprinter-installer
