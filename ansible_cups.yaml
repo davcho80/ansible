@@ -1,0 +1,54 @@
+---
+- name: Deploy CUPS container and install Brother printer
+  hosts: localhost  # Remplacez par votre hôte cible si nécessaire
+  vars:
+    portainer_url: "{{ lookup('env', 'PORTAINER_URL') }}"  # Utiliser des variables d'environnement pour plus de sécurité
+    portainer_api_token: "{{ lookup('env', 'PORTAINER_API_TOKEN') }}"
+    cups_container_name: "cups_server"
+    cups_image: "olbat/cupsd"
+    printer_model: "HL-3040CN"  # Modèle d'imprimante Brother
+    ip_imprimante: "{{ lookup('env', 'IP_PRINTER') }}"  # IP de l'imprimante
+
+  tasks:
+    - name: Deploy CUPS container in Portainer
+      uri:
+        url: "{{ portainer_url }}:9443/api/endpoints/1/docker/containers/create?name={{ cups_container_name }}"
+        method: POST
+        headers:
+          Authorization: "Bearer {{ portainer_api_token }}"
+          Content-Type: "application/json"
+        body_format: json
+        body:
+          Image: "{{ cups_image }}"
+          HostConfig:
+            PortBindings:
+              "631/tcp": [{"HostPort": "631"}]
+        return_content: yes
+      register: container_creation_response
+
+    - name: Start the CUPS container
+      uri:
+        url: "{{ portainer_url }}:9443/api/endpoints/1/docker/containers/{{ container_creation_response.json.Id }}/start"
+        method: POST
+        headers:
+          Authorization: "Bearer {{ portainer_api_token }}"
+
+    - name: Download Brother printer installer script
+      get_url:
+        url: "https://github.com/davcho80/ansible/blob/010a7dbec996eec107804ba82dbf421bf6556040/linux-brprinter-installer-2.2.4-1.gz"
+        dest: "/tmp/linux-brprinter-installer.gz"
+
+    - name: Extract the installer script
+      ansible.builtin.command:
+        cmd: "gunzip -f /tmp/linux-brprinter-installer.gz"
+      args:
+        removes: "/tmp/linux-brprinter-installer.gz"
+      
+    - name: Make the installer script executable
+      ansible.builtin.file:
+        path: "/tmp/linux-brprinter-installer"
+        mode: '0755'
+
+    - name: Install Brother printer driver silently
+      ansible.builtin.shell: |
+        echo -e "{{ printer_model }}\nY\nY\nlpd://{{ ip_imprimante }}/binary_p1" | bash /tmp/linux-brprinter-installer
