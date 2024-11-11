@@ -10,20 +10,16 @@
 
     - name: Mettre à jour les paquets
       ansible.builtin.apt:
-        upgrade: dist  # ou utilisez 'upgrade: yes' pour mettre à jour tous les paquets
-    
-    - name: Vérifier si un redémarrage est nécessaire sur Ubuntu
-      stat:
-        path: /var/run/reboot-required
-      register: reboot_required
+        upgrade: yes  # Mettre à jour tous les paquets
 
-    - name: Redémarrer la machine si nécessaire
-      reboot:
-      when: reboot_required.stat.exists
+    - name: Redémarrer la machine
+      ansible.builtin.reboot:
       register: reboot_result
 
-    - name: Attendre que le système redémarre
-      wait_for:
-        timeout: 300
+    - name: Attendre que le serveur redémarre
+      ansible.builtin.wait_for:
+        port: 22  # Vérifie le port SSH
+        delay: 10  # Délai avant de commencer à vérifier
+        timeout: 300  # Temps d'attente total
+        state: started  # Attendez que le service soit accessible
       when: reboot_result is changed
-
