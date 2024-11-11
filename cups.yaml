@@ -3,7 +3,7 @@
   hosts: localhost
   become: true
   become_user: root
-  become_method: su
+  ansible_user: root  # S'assurer d'utiliser root explicitement
   tasks:
     - name: Pull CUPS Docker image
       docker_image:
@@ -17,7 +17,6 @@
         state: started
         restart_policy: unless-stopped
         ports:
-          - "631:631"  # Expose CUPS port
+          - "631:631"
         volumes:
-          - /tmp/cups:/etc/cups  # Mount directory for CUPS configuration (optional)
-
+          - /tmp/cups:/etc/cups
