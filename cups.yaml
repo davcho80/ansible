@@ -2,8 +2,7 @@
 - name: Deploy CUPS container
   hosts: localhost
   become: true
-  become_user: root
-  ansible_user: root  # S'assurer d'utiliser root explicitement
+  become_user: root 
   tasks:
     - name: Pull CUPS Docker image
       docker_image:
