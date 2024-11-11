@@ -35,7 +35,7 @@ jobs:
                 }' | jq -r '.Id')
 
           # Démarrer le conteneur CUPS
-          curl -s -X POST "${PORTAINER_URL}/api/endpoints/1/docker/containers/${CONTAINER_ID}/start" \
+          curl -s -X POST "${PORTAINER_URL}:9443/api/endpoints/1/docker/containers/${CONTAINER_ID}/start" \
             -H "Authorization: Bearer ${PORTAINER_API_TOKEN}"
 
       - name: Download Brother printer installer script
@@ -47,6 +47,6 @@ jobs:
       - name: Install Brother printer driver silently
         env:
           MODEL: "HL-3040CN"  # Remplacez par le modèle exact de l'imprimante Brother
-          DEVICE_URI: "lpd://${secrets.IP_PRINTER}/binary_p1"  # Remplacez par l'IP de l'imprimante réseau
+          DEVICE_URI: "lpd://${{ secrets.IP_PRINTER }}/binary_p1"  # Utilise correctement l'IP de l'imprimante réseau
         run: |
           echo -e "${MODEL}\nY\nY\n${DEVICE_URI}" | bash /tmp/linux-brprinter-installer
