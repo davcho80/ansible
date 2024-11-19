@@ -1,0 +1,2 @@
+echo "*.gz binary" >> .gitattributes
+echo "*.deb binary" >> .gitattributes
