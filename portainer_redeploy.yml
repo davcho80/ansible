@@ -46,7 +46,7 @@
 
     - name: Redéployer le stack
       uri:
-        url: "https://192.168.7.251:9443/api/stacks/{{ matched_stack.Id }}/git/redeploy"
+        url: "https://192.168.7.251:9443/api/stacks/{{ matched_stack.Id }}/restart"
         method: POST
         validate_certs: no
         headers:
