@@ -7,7 +7,7 @@
 
     - name: Authentification à l'API Portainer
       uri:
-        url: "http://192.168.7.251:9443/api/auth"
+        url: "https://192.168.7.251:9443/api/auth"
         method: POST
         body_format: json
         headers:
@@ -24,7 +24,7 @@
 
     - name: Obtenir la liste des stacks
       uri:
-        url: "http://192.168.7.251:9443/api/stacks"
+        url: "https://192.168.7.251:9443/api/stacks"
         method: GET
         headers:
           Authorization: "Bearer {{ portainer_token }}"
@@ -44,7 +44,7 @@
 
     - name: Redéployer le stack
       uri:
-        url: "http://192.168.7.251:9443/api/stacks/{{ matched_stack.Id }}/git/redeploy"
+        url: "https://192.168.7.251:9443/api/stacks/{{ matched_stack.Id }}/git/redeploy"
         method: POST
         headers:
           Authorization: "Bearer {{ portainer_token }}"
