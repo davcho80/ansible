@@ -16,6 +16,7 @@
           username: "admin"
           password: "swm#rWRbH47d$e"
         return_content: yes
+        validate_certs: no
       register: portainer_auth
 
     - name: Extraire le token JWT
@@ -29,6 +30,7 @@
         headers:
           Authorization: "Bearer {{ portainer_token }}"
         return_content: yes
+        validate_certs: no
       register: stack_list
 
     - name: Trouver le stack par nom
@@ -46,6 +48,7 @@
       uri:
         url: "https://192.168.7.251:9443/api/stacks/{{ matched_stack.Id }}/git/redeploy"
         method: POST
+        validate_certs: no
         headers:
           Authorization: "Bearer {{ portainer_token }}"
         status_code: 200
