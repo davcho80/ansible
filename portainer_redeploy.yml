@@ -1,0 +1,55 @@
+---
+- name: Redéployer un stack Portainer par nom
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+
+    - name: Authentification à l'API Portainer
+      uri:
+        url: "{{ portainer_host }}/api/auth"
+        method: POST
+        body_format: json
+        headers:
+          Content-Type: "application/json"
+        body:
+          username: "{{ portainer_user }}"
+          password: "{{ portainer_password }}"
+        return_content: yes
+      register: portainer_auth
+
+    - name: Extraire le token JWT
+      set_fact:
+        portainer_token: "{{ portainer_auth.json.jwt }}"
+
+    - name: Obtenir la liste des stacks
+      uri:
+        url: "{{ portainer_host }}/api/stacks"
+        method: GET
+        headers:
+          Authorization: "Bearer {{ portainer_token }}"
+        return_content: yes
+      register: stack_list
+
+    - name: Trouver le stack par nom
+      set_fact:
+        matched_stack: "{{ item }}"
+      loop: "{{ stack_list.json }}"
+      when: item.Name == portainer_stack_name
+
+    - name: Échec si aucun stack ne correspond
+      fail:
+        msg: "Stack '{{ portainer_stack_name }}' non trouvé."
+      when: matched_stack is not defined
+
+    - name: Redéployer le stack
+      uri:
+        url: "{{ portainer_host }}/api/stacks/{{ matched_stack.Id }}/git/redeploy"
+        method: POST
+        headers:
+          Authorization: "Bearer {{ portainer_token }}"
+        status_code: 200
+
+    - name: Succès
+      debug:
+        msg: "Le stack '{{ matched_stack.Name }}' a été redéployé avec succès."
