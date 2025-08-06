@@ -37,7 +37,7 @@
       set_fact:
         matched_stack: "{{ item }}"
       loop: "{{ stack_list.json }}"
-      when: item.Name == elegoconnect
+      when: item.Name == "elegoconnect"
 
     - name: Échec si aucun stack ne correspond
       fail:
