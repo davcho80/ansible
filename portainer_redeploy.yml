@@ -6,8 +6,8 @@
   vars:
     portainer_host: "https://192.168.7.251:9443"
     portainer_user: "admin"
-    portainer_password: "motdepasse"
-    portainer_stack_name: "elegoconnect"
+    portainer_password: "swm#rWRbH47d$e"
+    portainer_stack_name: "elegooconnectgit"
 
     
   tasks:
