@@ -7,16 +7,15 @@
 
     - name: Authentification à l'API Portainer
       uri:
-        url: "https://192.168.7.251:9443/api/auth"
+        url: "{{ portainer_host }}/api/auth"
         method: POST
         body_format: json
         headers:
           Content-Type: "application/json"
         body:
-          username: "admin"
-          password: "swm#rWRbH47d$e"
+          username: "{{ portainer_user }}"
+          password: "{{ portainer_password }}"
         return_content: yes
-        validate_certs: no
       register: portainer_auth
 
     - name: Extraire le token JWT
@@ -25,34 +24,32 @@
 
     - name: Obtenir la liste des stacks
       uri:
-        url: "https://192.168.7.251:9443/api/stacks"
+        url: "{{ portainer_host }}/api/stacks"
         method: GET
         headers:
           Authorization: "Bearer {{ portainer_token }}"
         return_content: yes
-        validate_certs: no
       register: stack_list
 
     - name: Trouver le stack par nom
       set_fact:
         matched_stack: "{{ item }}"
       loop: "{{ stack_list.json }}"
-      when: item.Name == "elegoconnect"
+      when: item.Name == portainer_stack_name
 
     - name: Échec si aucun stack ne correspond
       fail:
-        msg: "Stack 'elegoconnect' non trouvé."
+        msg: "Stack '{{ portainer_stack_name }}' non trouvé."
       when: matched_stack is not defined
 
     - name: Redéployer le stack
       uri:
-        url: "https://192.168.7.251:9443/api/stacks/{{ matched_stack.Id }}/restart"
+        url: "{{ portainer_host }}/api/stacks/{{ matched_stack.Id }}/git/redeploy"
         method: POST
-        validate_certs: no
         headers:
           Authorization: "Bearer {{ portainer_token }}"
         status_code: 200
 
     - name: Succès
       debug:
-        msg: "Le stack 'elegoconnect' a été redéployé avec succès."
+        msg: "Le stack '{{ matched_stack.Name }}' a été redéployé avec succès."
