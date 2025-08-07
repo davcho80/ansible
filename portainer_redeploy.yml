@@ -1,59 +1,49 @@
 ---
-- name: Redéployer un stack Portainer par nom
+- name: Redéployer un stack dans Portainer
   hosts: localhost
-  gather_facts: false
-
+  gather_facts: no
   vars:
-    portainer_host: "https://192.168.7.251:9443"
-
-
+    portainer_api_url: "{{ portainer_host }}/api"
   tasks:
-
-    - name: Authentification à l'API Portainer
+    - name: Authentifier avec l'API de Portainer
       uri:
-        url: "{{ portainer_host }}/api/auth"
+        url: "{{ portainer_api_url }}/auth"
         method: POST
         body_format: json
         headers:
-          Content-Type: "application/json"
+          Content-Type: application/json
         body:
-          username: "{{ portainer_user }}"
-          password: "{{ portainer_password }}"
+          Username: "{{ portainer_user }}"
+          Password: "{{ portainer_password }}"
+        validate_certs: no
         return_content: yes
-      register: portainer_auth
+      register: login_response
 
     - name: Extraire le token JWT
       set_fact:
-        portainer_token: "{{ portainer_auth.json.jwt }}"
+        jwt_token: "{{ login_response.json.jwt }}"
 
     - name: Obtenir la liste des stacks
       uri:
-        url: "{{ portainer_host }}/api/stacks"
+        url: "{{ portainer_api_url }}/stacks"
         method: GET
         headers:
-          Authorization: "Bearer {{ portainer_token }}"
+          Authorization: "Bearer {{ jwt_token }}"
+        validate_certs: no
         return_content: yes
-      register: stack_list
+      register: stacks_response
 
-    - name: Trouver le stack par nom
+    - name: Trouver l'ID du stack cible
       set_fact:
-        matched_stack: "{{ item }}"
-      loop: "{{ stack_list.json }}"
+        target_stack_id: "{{ item.Id }}"
+      loop: "{{ stacks_response.json }}"
       when: item.Name == portainer_stack_name
-
-    - name: Échec si aucun stack ne correspond
-      fail:
-        msg: "Stack '{{ portainer_stack_name }}' non trouvé."
-      when: matched_stack is not defined
 
     - name: Redéployer le stack
       uri:
-        url: "{{ portainer_host }}/api/stacks/{{ matched_stack.Id }}/git/redeploy"
+        url: "{{ portainer_api_url }}/stacks/{{ target_stack_id }}/git/redeploy"
         method: POST
         headers:
-          Authorization: "Bearer {{ portainer_token }}"
+          Authorization: "Bearer {{ jwt_token }}"
+        validate_certs: no
         status_code: 200
-
-    - name: Succès
-      debug:
-        msg: "Le stack '{{ matched_stack.Name }}' a été redéployé avec succès."
