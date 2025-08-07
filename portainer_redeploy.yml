@@ -3,6 +3,10 @@
   hosts: localhost
   gather_facts: false
 
+- var:
+  portainer_host: https://192.168.7.251:9443
+
+
   tasks:
 
     - name: Authentification à l'API Portainer
