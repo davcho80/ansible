@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  octoapp-elegoo:
+    image: alpine:latest
+    container_name: octoapp-elegoo
+    tty: true
+    restart: unless-stopped
+    volumes:
+      - octoapp_data:/data
+    entrypoint: ["/bin/sh", "-c", "
+      # Mise à jour du système
+      apk update && apk add --no-cache git bash python3 py3-pip &&
+
+      # Cloner le dépôt
+      cd /home || cd / && \
+      git clone https://github.com/crysxd/OctoApp-Plugin octoapp && \
+      cd octoapp && git checkout release &&
+
+      # Exécuter le script d'installation en mode Elegoo
+      chmod +x install.sh && ./install.sh -elegoo &&
+
+      echo 'OctoApp Elegoo Connect installé avec succès.' &&
+
+      # Laisser le container en vie
+      sleep infinity
+    "]
+    networks:
+      - octoapp-net
+
+volumes:
+  octoapp_data:
+
+networks:
+  octoapp-net:
