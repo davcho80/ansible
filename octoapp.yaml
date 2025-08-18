@@ -10,8 +10,8 @@ services:
       - USERNAME=root
       - USER=root
       - HOME=/root
-    # 🔴 on ne monte plus le volume pour l’instant
-    #    pour éviter les fichiers résiduels qui bloquent
+      - PRINTER_IP=192.168.7.38   # 🔑 Mets ici l'IP de ta Centauri
+    network_mode: host   # nécessaire pour que le conteneur voie ton imprimante
     command: >
       bash -c "
       apt-get update &&
@@ -20,7 +20,10 @@ services:
       git clone https://github.com/crysxd/OctoApp-Plugin /root/octoapp &&
       cd /root/octoapp &&
       chmod +x install.sh &&
-      yes '' | ./install.sh -elegoo &&
-      echo 'Installation automatique terminée ✅' &&
+      yes '' | ./install.sh -elegoo <<EOF
+      $PRINTER_IP
+      EOF
+      &&
+      echo 'Installation automatique terminée ✅ avec IP $PRINTER_IP' &&
       tail -f /dev/null
       "
