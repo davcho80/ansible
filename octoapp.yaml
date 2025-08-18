@@ -17,7 +17,14 @@ services:
       apt-get update &&
       apt-get install -y git curl sudo bash coreutils python3 python3-pip &&
       cd /root &&
-      git clone https://github.com/crysxd/OctoApp-Plugin octoapp &&
+      if [ -d octoapp/.git ]; then
+        echo 'Repo déjà présent → mise à jour' &&
+        cd octoapp && git pull;
+      else
+        echo 'Repo absent → clonage' &&
+        rm -rf octoapp &&
+        git clone https://github.com/crysxd/OctoApp-Plugin octoapp;
+      fi &&
       cd octoapp &&
       chmod +x install.sh &&
       yes '' | ./install.sh -elegoo &&
