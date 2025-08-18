@@ -6,12 +6,16 @@ services:
     container_name: octoapp-elegoo
     restart: unless-stopped
     tty: true
+    environment:
+      - USERNAME=root
+      - USER=root
+      - HOME=/root
     volumes:
       - octoapp_data:/root/octoapp
     command: >
       bash -c "
       apt-get update &&
-      apt-get install -y git curl sudo bash coreutils &&
+      apt-get install -y git curl sudo bash coreutils python3 python3-pip &&
       cd /root &&
       git clone https://github.com/crysxd/OctoApp-Plugin octoapp &&
       cd octoapp &&
