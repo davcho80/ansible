@@ -11,13 +11,13 @@ services:
     command: >
       bash -c "
       apt-get update &&
-      apt-get install -y git curl sudo bash &&
+      apt-get install -y git curl sudo bash coreutils &&
       cd /root &&
       git clone https://github.com/crysxd/OctoApp-Plugin octoapp &&
       cd octoapp &&
       chmod +x install.sh &&
-      ./install.sh -elegoo &&
-      echo 'Installation terminée – suivez les invites à l’écran' &&
+      yes '' | ./install.sh -elegoo &&
+      echo 'Installation automatique terminée ✅' &&
       tail -f /dev/null
       "
 
