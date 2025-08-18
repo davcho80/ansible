@@ -2,29 +2,24 @@ version: "3.8"
 
 services:
   octoapp-elegoo:
-    image: alpine:latest
+    image: ubuntu:22.04
     container_name: octoapp-elegoo
-    tty: true
     restart: unless-stopped
+    tty: true
     volumes:
-      - octoapp_data:/data
+      - octoapp_data:/root/octoapp
     command: >
-      /bin/sh -c "
-      apk update &&
-      apk add --no-cache git bash python3 py3-pip &&
-      cd /home || cd / &&
+      bash -c "
+      apt-get update &&
+      apt-get install -y git curl sudo bash &&
+      cd /root &&
       git clone https://github.com/crysxd/OctoApp-Plugin octoapp &&
-      cd octoapp && git checkout release &&
+      cd octoapp &&
       chmod +x install.sh &&
       ./install.sh -elegoo &&
-      echo 'OctoApp Elegoo Connect installé avec succès.' &&
+      echo 'Installation terminée – suivez les invites à l’écran' &&
       tail -f /dev/null
       "
-    networks:
-      - octoapp-net
 
 volumes:
   octoapp_data:
-
-networks:
-  octoapp-net:
